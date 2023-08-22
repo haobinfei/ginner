@@ -1,0 +1,11 @@
+logs:
+  path: logs
+  level: 0
+  max-age: 1
+  max-size: 50
+  max-backups: 2
+  compress: false
+apps:
+  mode: debug
+  host: 0.0.0.0
+  port: 9999
