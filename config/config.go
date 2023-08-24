@@ -11,9 +11,10 @@ import (
 var Conf config
 
 type config struct {
-	Logs *LogConfig `mapstructure:"logs" json:"logs"`
-	App  *AppConfig `mapstructure:"apps" json:"apps"`
-	Jwt  *Jwt       `mapstructure:"jwt" json:"jwt"`
+	Logs   *LogConfig `mapstructure:"logs" json:"logs"`
+	App    *AppConfig `mapstructure:"apps" json:"apps"`
+	Jwt    *Jwt       `mapstructure:"jwt" json:"jwt"`
+	System *System    `mapstructure:"system" json:"system"`
 }
 
 func InitConfig() {
@@ -58,4 +59,8 @@ type Jwt struct {
 	Key        string `mapstructure:"key" json:"key"`
 	Timeout    int    `mapstructure:"timeout" json:"timeout"`
 	MaxRefresh int    `mapstructure:"max-refresh" json:"maxRefresh"`
+}
+
+type System struct {
+	RSAPrivateBytes []byte `mapstructure:"_" json:"_"`
 }
