@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -8,6 +9,8 @@ import (
 	"github.com/haobinfei/ginner/config"
 	"github.com/haobinfei/ginner/model"
 	"github.com/haobinfei/ginner/model/request"
+	"github.com/haobinfei/ginner/model/response"
+	"github.com/haobinfei/ginner/public/common"
 	"github.com/haobinfei/ginner/public/tools"
 	"github.com/haobinfei/ginner/service/isql"
 )
@@ -84,4 +87,48 @@ func login(c *gin.Context) (interface{}, error) {
 	return tools.H{
 		"user": tools.Struct2Json(user),
 	}, nil
+}
+
+// 用户登录校验成功处理
+func authorizator(data interface{}, c *gin.Context) bool {
+	if v, ok := data.(tools.H); ok {
+		userStr := v["user"].(string)
+		var user model.User
+		// 将用户json转化为结构体
+		tools.Json2Struct(userStr, &user)
+		// 将用户保存到context, api调用时取数据方便
+		c.Set("user", user)
+		return true
+	}
+	return false
+}
+
+// 用户登录校验失败处理
+func unauthorized(c *gin.Context, code int, message string) {
+	common.Log.Debugf("JWT认证失败, 错误码: %d, 错误信息: %s", code, message)
+	response.Response(c, code, code, nil, fmt.Sprintf("JWT认证失败, 错误码: %d, 错误信息: %s", code, message))
+}
+
+// 登录成功后的响应
+func loginResponse(c *gin.Context, code int, token string, expires time.Time) {
+	response.Response(c, code, code,
+		gin.H{
+			"token":   token,
+			"expires": expires.Format("2006-01-02 15:04:05"),
+		}, "登录成功")
+}
+
+// 登出后的响应
+func logoutResponse(c *gin.Context, code int) {
+	response.Success(c, nil, "退出成功")
+}
+
+// 刷新token后的响应
+func refreshResponse(c *gin.Context, code int, token string, expires time.Time) {
+	response.Response(c, code, code,
+		gin.H{
+			"token":   token,
+			"expires": expires,
+		},
+		"刷新token成功")
 }
